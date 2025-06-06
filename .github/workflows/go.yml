@@ -20,5 +20,4 @@ jobs:
           JUDICIAL_USER: ${{ secrets.JUDICIAL_USER }}
           JUDICIAL_PASSWORD: ${{ secrets.JUDICIAL_PASSWORD }}
         run: |
-          cd judicial-open-data
           go test -v
