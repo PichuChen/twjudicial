@@ -1,0 +1,24 @@
+name: Go CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.18'
+      - name: Run tests
+        env:
+          JUDICIAL_USER: ${{ secrets.JUDICIAL_USER }}
+          JUDICIAL_PASSWORD: ${{ secrets.JUDICIAL_PASSWORD }}
+        run: |
+          cd judicial-open-data
+          go test -v
