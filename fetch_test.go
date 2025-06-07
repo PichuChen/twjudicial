@@ -110,17 +110,15 @@ func TestNonOKStatus(t *testing.T) {
 			Header:     make(http.Header),
 		}, nil
 	})
-	origTransport := http.DefaultTransport
-	http.DefaultTransport = rt
-	defer func() { http.DefaultTransport = origTransport }()
+	client := &http.Client{Transport: rt}
 
-	if _, err := Auth("u", "p"); err == nil || !strings.Contains(err.Error(), "status") {
+	if _, err := AuthWithClient(client, "u", "p"); err == nil || !strings.Contains(err.Error(), "status") {
 		t.Fatalf("Auth should fail on non-200 status, got %v", err)
 	}
-	if _, err := GetJList("token"); err == nil || !strings.Contains(err.Error(), "status") {
+	if _, err := GetJListWithClient(client, "token"); err == nil || !strings.Contains(err.Error(), "status") {
 		t.Fatalf("GetJList should fail on non-200 status, got %v", err)
 	}
-	if _, err := GetJDoc("token", "jid"); err == nil || !strings.Contains(err.Error(), "status") {
+	if _, err := GetJDocWithClient(client, "token", "jid"); err == nil || !strings.Contains(err.Error(), "status") {
 		t.Fatalf("GetJDoc should fail on non-200 status, got %v", err)
 	}
 }
