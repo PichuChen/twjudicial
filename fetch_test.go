@@ -28,12 +28,12 @@ func TestEnvVarsRequired(t *testing.T) {
 	}
 }
 
-// 檢查服務時間（司法院 API 只在 07:00~23:00 提供服務）
+// 檢查服務時間（司法院 API 僅於每日 00:00~06:00 提供服務）
 func TestServiceHours(t *testing.T) {
 	now := time.Now()
 	hour := now.Hour()
-	if hour < 7 || hour >= 23 {
-		t.Skipf("目前非服務時間（07:00~23:00），現在時間：%02d:%02d", hour, now.Minute())
+	if hour >= 6 {
+		t.Skipf("目前非服務時間（00:00~06:00），現在時間：%02d:%02d", hour, now.Minute())
 	}
 }
 
