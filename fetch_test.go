@@ -14,7 +14,7 @@ import (
 func skipIfNotServiceTime(t *testing.T) {
 	now := time.Now()
 	if h := now.Hour(); h >= 6 {
-		t.Skipf("\u76ee\u524d\u975e\u670d\u52d9\u6642\u9593\uff0800:00~06:00\uff09\uff0c\u73fe\u5728\u6642\u9593\uff1a%02d:%02d", h, now.Minute())
+		t.Skipf("目前非服務時間（00:00~06:00），現在時間：%02d:%02d", h, now.Minute())
 	}
 }
 
