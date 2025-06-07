@@ -109,7 +109,10 @@ type JDocResponse struct {
 
 // Auth 取得 token
 func Auth(user, password string) (string, error) {
-	reqBody, _ := json.Marshal(AuthRequest{User: user, Password: password})
+	reqBody, err := json.Marshal(AuthRequest{User: user, Password: password})
+	if err != nil {
+		return "", err
+	}
 	resp, err := httpClient.Post(apiAuth, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return "", err
@@ -119,7 +122,10 @@ func Auth(user, password string) (string, error) {
 		return "", fmt.Errorf("Auth request failed with status %d", resp.StatusCode)
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
 	var result AuthResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err
@@ -132,7 +138,10 @@ func Auth(user, password string) (string, error) {
 
 // GetJList 取得裁判書異動清單
 func GetJList(token string) ([]JListResponseItem, error) {
-	reqBody, _ := json.Marshal(JListRequest{Token: token})
+	reqBody, err := json.Marshal(JListRequest{Token: token})
+	if err != nil {
+		return nil, err
+	}
 	resp, err := httpClient.Post(apiJList, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
@@ -142,7 +151,10 @@ func GetJList(token string) ([]JListResponseItem, error) {
 		return nil, fmt.Errorf("GetJList request failed with status %d", resp.StatusCode)
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	if bytes.Contains(body, []byte("驗證失敗")) {
 		return nil, errors.New("驗證失敗")
 	}
@@ -155,7 +167,10 @@ func GetJList(token string) ([]JListResponseItem, error) {
 
 // GetJDoc 取得裁判書內容
 func GetJDoc(token, jid string) (*JDocResponse, error) {
-	reqBody, _ := json.Marshal(JDocRequest{Token: token, J: jid})
+	reqBody, err := json.Marshal(JDocRequest{Token: token, J: jid})
+	if err != nil {
+		return nil, err
+	}
 	resp, err := httpClient.Post(apiJDoc, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
@@ -165,7 +180,10 @@ func GetJDoc(token, jid string) (*JDocResponse, error) {
 		return nil, fmt.Errorf("GetJDoc request failed with status %d", resp.StatusCode)
 	}
 	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	var result JDocResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err

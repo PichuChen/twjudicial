@@ -12,6 +12,7 @@ import (
 
 // skipIfNotServiceTime skips the test when current time is outside 00:00~06:00.
 func skipIfNotServiceTime(t *testing.T) {
+	t.Helper()
 	now := time.Now()
 	if h := now.Hour(); h >= 6 {
 		t.Skipf("目前非服務時間（00:00~06:00），現在時間：%02d:%02d", h, now.Minute())
