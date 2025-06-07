@@ -37,7 +37,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -112,7 +112,7 @@ func Auth(user, password string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	var result AuthResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err
@@ -132,7 +132,7 @@ func GetJList(token string) ([]JListResponseItem, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	if bytes.Contains(body, []byte("驗證失敗")) {
 		return nil, errors.New("驗證失敗")
 	}
@@ -152,7 +152,7 @@ func GetJDoc(token, jid string) (*JDocResponse, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	var result JDocResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, err
