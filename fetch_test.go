@@ -1,7 +1,11 @@
 package twjudicial
 
 import (
+	"bytes"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -87,5 +91,36 @@ func TestAuthWrongPassword(t *testing.T) {
 	token, err := Auth(user, password)
 	if err == nil {
 		t.Fatalf("Auth 應該失敗，但卻成功，token=%s", token)
+	}
+}
+
+// roundTripFunc allows custom HTTP responses in tests.
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}
+
+// TestNonOKStatus ensures functions return errors on non-200 responses.
+func TestNonOKStatus(t *testing.T) {
+	rt := roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       io.NopCloser(bytes.NewBuffer(nil)),
+			Header:     make(http.Header),
+		}, nil
+	})
+	origTransport := http.DefaultTransport
+	http.DefaultTransport = rt
+	defer func() { http.DefaultTransport = origTransport }()
+
+	if _, err := Auth("u", "p"); err == nil || !strings.Contains(err.Error(), "status") {
+		t.Fatalf("Auth should fail on non-200 status, got %v", err)
+	}
+	if _, err := GetJList("token"); err == nil || !strings.Contains(err.Error(), "status") {
+		t.Fatalf("GetJList should fail on non-200 status, got %v", err)
+	}
+	if _, err := GetJDoc("token", "jid"); err == nil || !strings.Contains(err.Error(), "status") {
+		t.Fatalf("GetJDoc should fail on non-200 status, got %v", err)
 	}
 }

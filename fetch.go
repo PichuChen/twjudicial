@@ -37,6 +37,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -111,6 +112,10 @@ func Auth(user, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return "", fmt.Errorf("Auth request failed with status %d", resp.StatusCode)
+	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	var result AuthResponse
@@ -131,6 +136,10 @@ func GetJList(token string) ([]JListResponseItem, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("GetJList request failed with status %d", resp.StatusCode)
+	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if bytes.Contains(body, []byte("驗證失敗")) {
@@ -150,6 +159,10 @@ func GetJDoc(token, jid string) (*JDocResponse, error) {
 	resp, err := client.Post(apiJDoc, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("GetJDoc request failed with status %d", resp.StatusCode)
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
