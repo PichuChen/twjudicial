@@ -10,6 +10,14 @@ import (
 	"time"
 )
 
+// skipIfNotServiceTime skips the test when current time is outside 00:00~06:00.
+func skipIfNotServiceTime(t *testing.T) {
+	now := time.Now()
+	if h := now.Hour(); h >= 6 {
+		t.Skipf("\u76ee\u524d\u975e\u670d\u52d9\u6642\u9593\uff0800:00~06:00\uff09\uff0c\u73fe\u5728\u6642\u9593\uff1a%02d:%02d", h, now.Minute())
+	}
+}
+
 // 測試未設定環境變數時，測試應該被 Skip
 func TestEnvVarsRequired(t *testing.T) {
 	origUser := os.Getenv("JUDICIAL_USER")
@@ -34,14 +42,11 @@ func TestEnvVarsRequired(t *testing.T) {
 
 // 檢查服務時間（司法院 API 僅於每日 00:00~06:00 提供服務）
 func TestServiceHours(t *testing.T) {
-	now := time.Now()
-	hour := now.Hour()
-	if hour >= 6 {
-		t.Skipf("目前非服務時間（00:00~06:00），現在時間：%02d:%02d", hour, now.Minute())
-	}
+	skipIfNotServiceTime(t)
 }
 
 func TestAuth(t *testing.T) {
+	skipIfNotServiceTime(t)
 	user := os.Getenv("JUDICIAL_USER")
 	password := os.Getenv("JUDICIAL_PASSWORD")
 	if user == "" || password == "" {
@@ -57,6 +62,7 @@ func TestAuth(t *testing.T) {
 }
 
 func TestJListAndJDoc(t *testing.T) {
+	skipIfNotServiceTime(t)
 	user := os.Getenv("JUDICIAL_USER")
 	password := os.Getenv("JUDICIAL_PASSWORD")
 	if user == "" || password == "" {
@@ -86,6 +92,7 @@ func TestJListAndJDoc(t *testing.T) {
 
 // 測試 Auth 錯誤帳密
 func TestAuthWrongPassword(t *testing.T) {
+	skipIfNotServiceTime(t)
 	user := "not_exist_user"
 	password := "wrong_password"
 	token, err := Auth(user, password)
