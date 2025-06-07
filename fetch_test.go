@@ -110,9 +110,9 @@ func TestNonOKStatus(t *testing.T) {
 			Header:     make(http.Header),
 		}, nil
 	})
-	client := &http.Client{Transport: rt}
-
-	if _, err := AuthWithClient(client, "u", "p"); err == nil || !strings.Contains(err.Error(), "status") {
+	origClient := httpClient
+	httpClient = &http.Client{Transport: rt}
+	defer func() { httpClient = origClient }()
 		t.Fatalf("Auth should fail on non-200 status, got %v", err)
 	}
 	if _, err := GetJListWithClient(client, "token"); err == nil || !strings.Contains(err.Error(), "status") {

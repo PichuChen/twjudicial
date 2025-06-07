@@ -49,6 +49,9 @@ const (
 	apiJDoc  = "https://data.judicial.gov.tw/jdg/api/JDoc"
 )
 
+// httpClient is used for all HTTP requests and can be replaced in tests.
+var httpClient = &http.Client{Timeout: 10 * time.Second}
+
 // AuthRequest 用於登入取得 token
 type AuthRequest struct {
 	User     string `json:"user"`
@@ -107,8 +110,7 @@ type JDocResponse struct {
 // Auth 取得 token
 func Auth(user, password string) (string, error) {
 	reqBody, _ := json.Marshal(AuthRequest{User: user, Password: password})
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Post(apiAuth, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := httpClient.Post(apiAuth, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return "", err
 	}
@@ -131,8 +133,7 @@ func Auth(user, password string) (string, error) {
 // GetJList 取得裁判書異動清單
 func GetJList(token string) ([]JListResponseItem, error) {
 	reqBody, _ := json.Marshal(JListRequest{Token: token})
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Post(apiJList, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := httpClient.Post(apiJList, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -155,8 +156,7 @@ func GetJList(token string) ([]JListResponseItem, error) {
 // GetJDoc 取得裁判書內容
 func GetJDoc(token, jid string) (*JDocResponse, error) {
 	reqBody, _ := json.Marshal(JDocRequest{Token: token, J: jid})
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Post(apiJDoc, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := httpClient.Post(apiJDoc, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}
